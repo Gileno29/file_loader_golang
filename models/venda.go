@@ -1,6 +1,6 @@
-package main
+package models
 
-type Vendas struct {
+type Venda struct {
 	cpf                string
 	private            int32
 	incompleto         int32
