@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"main"
+
+	"github.com/Gileno29/file_loader_golang/models"
 
 	_ "github.com/lib/pq"
 )
@@ -30,6 +31,6 @@ func conectar() *sql.DB {
 
 }
 
-func inserirRegistros(v main.Vendas, c *sql.DB) {
+func inserirRegistros(v models.Venda, c *sql.DB) {
 
 }
