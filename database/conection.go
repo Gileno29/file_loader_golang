@@ -10,7 +10,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func Conectar() *sql.DB {
+func conectar() *sql.DB {
 
 	connStr := "user=uservendas dbname=dbvendas password=vendas host=localhost sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
@@ -31,7 +31,7 @@ func Conectar() *sql.DB {
 
 }
 
-func InserirRegistros(v models.Venda, c *sql.DB) {
+func inserirRegistros(v models.Venda, c *sql.DB) {
 
 	_, err := c.Exec("INSERT INTO sua_tabela (nome) VALUES ($1)", v)
 	if err != nil {
