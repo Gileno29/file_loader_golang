@@ -33,4 +33,10 @@ func conectar() *sql.DB {
 
 func inserirRegistros(v models.Venda, c *sql.DB) {
 
+	_, err := c.Exec("INSERT INTO sua_tabela (nome) VALUES ($1)", v)
+	if err != nil {
+		log.Fatal("Erro ao executar o INSERT:", err)
+	}
+	fmt.Println("Registro inserido com sucesso!")
+
 }

@@ -78,6 +78,8 @@ func insertIntoDB(fileName string) {
 
 func main() {
 
-	insertIntoDB("Base.txt")
+	//insertIntoDB("Base.txt")
+
+	//TESTE CONEXAO
 
 }
