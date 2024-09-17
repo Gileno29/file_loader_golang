@@ -27,9 +27,14 @@ func processFile(fileName string) (io.Reader, error) {
 		defer writer.Close()
 
 		scanner := bufio.NewScanner(file)
+		count := 0
 		for scanner.Scan() {
+			if count == 0 {
+				count += 1
+				continue
+			}
 			// Substituir os espaços por '|'
-			modifiedLine := re.ReplaceAllString(scanner.Text(), ";") + "\n"
+			modifiedLine := re.ReplaceAllString(scanner.Text(), "|") + "\n"
 			// Escrever a linha modificada no writer
 			_, err := writer.Write([]byte(modifiedLine))
 			if err != nil {
@@ -47,7 +52,7 @@ func processFile(fileName string) (io.Reader, error) {
 }
 
 func insertIntoDB(fileName string) {
-	count := 0
+	//count := 0
 
 	csvMemory, err := processFile(fileName)
 	if err != nil {
@@ -63,15 +68,9 @@ func insertIntoDB(fileName string) {
 		return
 	}
 
-	// Exibir o conteúdo do CSV
 	for i, record := range records {
-		if count == 0 {
-			fmt.Print("estou aqui")
-			count = count + 1
-			continue
-		}
 
-		fmt.Printf("Linha %d: %v\n", i+1, record[0])
+		fmt.Printf("Linha %d: %v\n", i+1, record[2])
 		break
 	}
 
