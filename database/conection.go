@@ -12,7 +12,7 @@ import (
 
 func Conectar() *sql.DB {
 
-	connStr := "user=seu_usuario dbname=seu_banco password=sua_senha host=localhost sslmode=disable"
+	connStr := "user=uservendas dbname=dbvendas password=vendas host=localhost sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal("Erro ao abrir a conexão:", err)

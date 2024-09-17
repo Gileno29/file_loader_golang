@@ -85,4 +85,6 @@ func main() {
 	//TESTE CONEXAO
 	c := database.Conectar()
 
+	fmt.Println(c)
+
 }
