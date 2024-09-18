@@ -10,9 +10,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func conectar() *sql.DB {
+func Conectar(user string, pass string, database string) *sql.DB {
 
-	connStr := "user=uservendas dbname=dbvendas password=vendas host=localhost sslmode=disable"
+	connStr := "user=" + user + "dbname=" + database + "password=" + pass + " host=localhost sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal("Erro ao abrir a conexão:", err)
@@ -31,7 +31,7 @@ func conectar() *sql.DB {
 
 }
 
-func inserirRegistros(v models.Venda, c *sql.DB) {
+func InserirRegistros(v models.Venda, c *sql.DB) {
 
 	_, err := c.Exec("INSERT INTO sua_tabela (nome) VALUES ($1)", v)
 	if err != nil {
