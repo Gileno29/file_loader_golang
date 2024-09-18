@@ -1,5 +1,5 @@
-github.com/Gileno29/file_loader_golang/database v0.0.0-20240917130614-e1c83a5c9b08 h1:b0G1FcymL7v73r1lj782ppmAOq/yw2lTiaHFES/w9Zc=
-github.com/Gileno29/file_loader_golang/database v0.0.0-20240917130614-e1c83a5c9b08/go.mod h1:ZQg/YLaJKsFLMNaumM1TycuLPvz+koo7bxSdO/SzrhE=
+github.com/Gileno29/file_loader_golang/database v0.0.0-20240917155927-e02a3634ff95 h1:KIYtx9wkfXOXXsP5qJnSdvRNcv10KqQiG6il5nv69p8=
+github.com/Gileno29/file_loader_golang/database v0.0.0-20240917155927-e02a3634ff95/go.mod h1:ZQg/YLaJKsFLMNaumM1TycuLPvz+koo7bxSdO/SzrhE=
 github.com/Gileno29/file_loader_golang/models v0.0.0-20240917115927-bad561d413d7 h1:0LfKLEHI2LDdggP3vnNAeYbtc4OU0oFnFlHFFnGy95g=
 github.com/Gileno29/file_loader_golang/models v0.0.0-20240917115927-bad561d413d7/go.mod h1:nYsjbnGL/bOh7k9GTaa6V52UUvoNA4PSi9wnhApd+50=
 github.com/lib/pq v1.10.9 h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=
