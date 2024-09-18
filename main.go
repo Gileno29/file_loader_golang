@@ -83,7 +83,7 @@ func main() {
 	//insertIntoDB("Base.txt")
 
 	//TESTE CONEXAO
-	c := database.Conectar()
+	c := database.Conectar("uservedas", "venda", "dbvenda")
 
 	fmt.Println(c)
 
