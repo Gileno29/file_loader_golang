@@ -1,12 +1,10 @@
-package database
+package main
 
 import (
 	"database/sql"
 	"fmt"
 	"log"
 	"strings"
-
-	"github.com/Gileno29/file_loader_golang/models"
 
 	_ "github.com/lib/pq"
 )
@@ -21,7 +19,7 @@ type Table struct {
 	Columns []Column
 }
 
-func Conectar(user string, pass string, database string) (error *sql.DB) {
+func conectar(user string, pass string, database string) (error *sql.DB) {
 
 	connStr := "user=" + user + " dbname=" + database + " password=" + pass + " host=localhost sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
@@ -42,7 +40,7 @@ func Conectar(user string, pass string, database string) (error *sql.DB) {
 
 }
 
-func InserirRegistros(v models.Venda, c *sql.DB) {
+func inserirRegistros(v Venda, c *sql.DB) {
 
 	_, err := c.Exec("INSERT INTO sua_tabela (nome) VALUES ($1)", v)
 	if err != nil {
@@ -52,7 +50,7 @@ func InserirRegistros(v models.Venda, c *sql.DB) {
 
 }
 
-func CreateTable(table Table, c *sql.DB) error {
+func createTable(table Table, c *sql.DB) error {
 	var columns []string
 	for _, column := range table.Columns {
 		columns = append(columns, fmt.Sprintf("%s %s", column.Name, column.Type))

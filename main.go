@@ -7,8 +7,6 @@ import (
 	"io"
 	"os"
 	"regexp"
-
-	"github.com/Gileno29/file_loader_golang/database"
 )
 
 func processFile(fileName string) (io.Reader, error) {
@@ -83,8 +81,7 @@ func main() {
 	//insertIntoDB("Base.txt")
 
 	//TESTE CONEXAO
-	c := database.Conectar("uservendas", "vendas", "dbvendas")
-
-	fmt.Println(c)
+	c := conectar("uservendas", "vendas", "dbvendas")
+	print(c)
 
 }
