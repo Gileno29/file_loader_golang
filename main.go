@@ -155,6 +155,9 @@ func createTable(table Table, c *sql.DB) error {
 	drop := fmt.Sprintf("DROP TABLE %s ", table.Name)
 
 	_, err := c.Exec(drop)
+	if err != nil {
+		fmt.Println("Erro ao dropar tabela")
+	}
 
 	query := fmt.Sprintf("CREATE TABLE %s (%s)", table.Name, strings.Join(columns, ", "))
 
