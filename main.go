@@ -2,12 +2,39 @@ package main
 
 import (
 	"bufio"
+	"database/sql"
 	"encoding/csv"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"regexp"
+	"strconv"
+	"strings"
+
+	_ "github.com/lib/pq"
 )
+
+type Venda struct {
+	cpf                string
+	private            int32
+	incompleto         int32
+	ultimaCompra       string
+	ticketMedio        string
+	ticketUltimaCompra string
+	lojaMaisFrequente  string
+	lojaUltimaCompra   string
+}
+
+type Column struct {
+	Name string
+	Type string
+}
+
+type Table struct {
+	Name    string
+	Columns []Column
+}
 
 func processFile(fileName string) (io.Reader, error) {
 	file, err := os.Open(fileName)
@@ -51,7 +78,7 @@ func processFile(fileName string) (io.Reader, error) {
 	return reader, nil
 }
 
-func insertIntoDB(fileName string) {
+func insertIntoDB(fileName string, db *sql.DB) {
 	//count := 0
 
 	csvMemory, err := processFile(fileName)
@@ -71,8 +98,73 @@ func insertIntoDB(fileName string) {
 	for i, record := range records {
 
 		fmt.Printf("Linha %d: %v\n", i+1, record[2])
-		break
+		v1, err := strconv.Atoi(record[2])
+		if err != nil {
+			fmt.Println("Erro ao converter")
+		}
+
+		v2, err := strconv.Atoi(record[1])
+
+		if err != nil {
+			fmt.Print("Erro o converter valor 02")
+		}
+		venda := Venda{record[0], int32(v2), int32(v1), record[3], record[4], record[5], record[6], record[7]}
+
+		inserirRegistros(venda, db)
 	}
+
+}
+
+func conectar(user string, pass string, database string) (error *sql.DB) {
+
+	connStr := "user=" + user + " dbname=" + database + " password=" + pass + " host=localhost sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal("Erro ao abrir a conexão:", err)
+	}
+	//defer db.Close()
+
+	// Testar a conexão
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Erro ao conectar ao banco de dados:", err)
+	}
+
+	fmt.Println("Conectado ao banco de dados com sucesso!")
+
+	return db
+
+}
+
+func inserirRegistros(v Venda, c *sql.DB) {
+
+	_, err := c.Exec("INSERT INTO venda VALUES ($1, $2, $3,$4,$5, $6, $7, $8)", v.cpf, v.private, v.incompleto, v.ultimaCompra, v.ticketMedio, v.ticketUltimaCompra, v.lojaMaisFrequente, v.lojaUltimaCompra)
+	if err != nil {
+		log.Fatal("Erro ao executar o INSERT:", err)
+	}
+	fmt.Println("Registro inserido com sucesso!")
+
+}
+
+func createTable(table Table, c *sql.DB) error {
+	var columns []string
+	for _, column := range table.Columns {
+		columns = append(columns, fmt.Sprintf("%s %s", column.Name, column.Type))
+	}
+
+	drop := fmt.Sprintf("DROP TABLE %s ", table.Name)
+
+	_, err := c.Exec(drop)
+
+	query := fmt.Sprintf("CREATE TABLE %s (%s)", table.Name, strings.Join(columns, ", "))
+
+	_, err = c.Exec(query)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }
 
@@ -82,6 +174,25 @@ func main() {
 
 	//TESTE CONEXAO
 	c := conectar("uservendas", "vendas", "dbvendas")
-	print(c)
+	var colunms []Column
+
+	c1 := Column{"cpf", "varchar"}
+	c2 := Column{"private", "integer"}
+	c3 := Column{"incompleto", "integer"}
+	c4 := Column{"ultimaCompra", "varchar"}
+	c5 := Column{"ticketmedio", "varchar"}
+	c6 := Column{"ticketultimacompra", "varchar"}
+	c7 := Column{"lojamaisfrequente", "varchar"}
+	c8 := Column{"lojaUltimaCompra", "varchar"}
+	colunms = append(colunms, c1, c2, c3, c4, c5, c6, c7, c8)
+	tb := Table{"venda", colunms}
+
+	err := createTable(tb, c)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	insertIntoDB("Base.txt", c)
 
 }
