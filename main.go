@@ -24,6 +24,8 @@ type Venda struct {
 	ticketUltimaCompra string
 	lojaMaisFrequente  string
 	lojaUltimaCompra   string
+	cpfValid           bool
+	cnpjValid          bool
 }
 
 type Column struct {
@@ -34,6 +36,48 @@ type Column struct {
 type Table struct {
 	Name    string
 	Columns []Column
+}
+
+func calcularDigitoVerificador(numeros []int, pesos []int) int {
+	soma := 0
+	for i, num := range numeros {
+		soma += num * pesos[i]
+	}
+	resto := soma % 11
+	if resto < 2 {
+		return 0
+	}
+	return 11 - resto
+}
+
+// Verificação dos cpfs e cnpjs validos
+func validarCPF(cpf string) bool {
+	// Remover caracteres não numéricos
+	var numeros []int
+	for _, r := range cpf {
+		if r >= '0' && r <= '9' {
+			numeros = append(numeros, int(r-'0'))
+		}
+	}
+
+	if len(numeros) != 11 {
+		return false
+	}
+
+	// Calcular o primeiro dígito verificador
+	dv1 := calcularDigitoVerificador(numeros[:9], []int{10, 9, 8, 7, 6, 5, 4, 3, 2})
+	numeros = append(numeros, dv1)
+
+	// Calcular o segundo dígito verificador
+	dv2 := calcularDigitoVerificador(numeros[:10], []int{11, 10, 9, 8, 7, 6, 5, 4, 3, 2})
+
+	return dv1 == numeros[9] && dv2 == numeros[10]
+}
+
+func validarCNPJ(cnpj string) bool {
+	// Lógica similar ao CPF, com pesos e tamanho diferentes
+	// ...
+	return true
 }
 
 func processFile(fileName string) (io.Reader, error) {
@@ -80,7 +124,8 @@ func processFile(fileName string) (io.Reader, error) {
 
 func insertIntoDB(fileName string, db *sql.DB) {
 	//count := 0
-
+	var cpfValid bool
+	var cnpjValid bool
 	csvMemory, err := processFile(fileName)
 	if err != nil {
 		fmt.Println("Erro ao abrir arquivo")
@@ -108,7 +153,21 @@ func insertIntoDB(fileName string, db *sql.DB) {
 		if err != nil {
 			fmt.Print("Erro o converter valor 02")
 		}
-		venda := Venda{record[0], int32(v2), int32(v1), record[3], record[4], record[5], record[6], record[7]}
+
+		if validarCPF(record[0]) {
+			cpfValid = true
+
+		} else {
+			cpfValid = false
+		}
+
+		if validarCNPJ(record[7]) {
+			cnpjValid = true
+		} else {
+			cnpjValid = false
+		}
+
+		venda := Venda{record[0], int32(v2), int32(v1), record[3], record[4], record[5], record[6], record[7], cpfValid, cnpjValid}
 
 		inserirRegistros(venda, db)
 	}
@@ -138,7 +197,7 @@ func conectar(user string, pass string, database string) (error *sql.DB) {
 
 func inserirRegistros(v Venda, c *sql.DB) {
 
-	_, err := c.Exec("INSERT INTO venda VALUES ($1, $2, $3,$4,$5, $6, $7, $8)", v.cpf, v.private, v.incompleto, v.ultimaCompra, v.ticketMedio, v.ticketUltimaCompra, v.lojaMaisFrequente, v.lojaUltimaCompra)
+	_, err := c.Exec("INSERT INTO venda VALUES ($1, $2, $3,$4,$5, $6, $7, $8, $9, $10)", v.cpf, v.private, v.incompleto, v.ultimaCompra, v.ticketMedio, v.ticketUltimaCompra, v.lojaMaisFrequente, v.lojaUltimaCompra, v.cpfValid, v.cnpjValid)
 	if err != nil {
 		log.Fatal("Erro ao executar o INSERT:", err)
 	}
@@ -187,7 +246,9 @@ func main() {
 	c6 := Column{"ticketultimacompra", "varchar"}
 	c7 := Column{"lojamaisfrequente", "varchar"}
 	c8 := Column{"lojaUltimaCompra", "varchar"}
-	colunms = append(colunms, c1, c2, c3, c4, c5, c6, c7, c8)
+	c9 := Column{"cpfValid", "bool"}
+	c10 := Column{"cnpjValid", "bool"}
+	colunms = append(colunms, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10)
 	tb := Table{"venda", colunms}
 
 	err := createTable(tb, c)
