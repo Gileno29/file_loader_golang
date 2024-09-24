@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/klassmann/cpfcnpj"
 	_ "github.com/lib/pq"
 )
 
@@ -36,48 +37,6 @@ type Column struct {
 type Table struct {
 	Name    string
 	Columns []Column
-}
-
-func calcularDigitoVerificador(numeros []int, pesos []int) int {
-	soma := 0
-	for i, num := range numeros {
-		soma += num * pesos[i]
-	}
-	resto := soma % 11
-	if resto < 2 {
-		return 0
-	}
-	return 11 - resto
-}
-
-// Verificação dos cpfs e cnpjs validos
-func validarCPF(cpf string) bool {
-	// Remover caracteres não numéricos
-	var numeros []int
-	for _, r := range cpf {
-		if r >= '0' && r <= '9' {
-			numeros = append(numeros, int(r-'0'))
-		}
-	}
-
-	if len(numeros) != 11 {
-		return false
-	}
-
-	// Calcular o primeiro dígito verificador
-	dv1 := calcularDigitoVerificador(numeros[:9], []int{10, 9, 8, 7, 6, 5, 4, 3, 2})
-	numeros = append(numeros, dv1)
-
-	// Calcular o segundo dígito verificador
-	dv2 := calcularDigitoVerificador(numeros[:10], []int{11, 10, 9, 8, 7, 6, 5, 4, 3, 2})
-
-	return dv1 == numeros[9] && dv2 == numeros[10]
-}
-
-func validarCNPJ(cnpj string) bool {
-	// Lógica similar ao CPF, com pesos e tamanho diferentes
-	// ...
-	return true
 }
 
 func processFile(fileName string) (io.Reader, error) {
@@ -154,14 +113,17 @@ func insertIntoDB(fileName string, db *sql.DB) {
 			fmt.Print("Erro o converter valor 02")
 		}
 
-		if validarCPF(record[0]) {
+		cpf := cpfcnpj.NewCPF(record[0])
+		if cpf.IsValid() {
 			cpfValid = true
 
 		} else {
 			cpfValid = false
 		}
 
-		if validarCNPJ(record[7]) {
+		cnpj := cpfcnpj.NewCNPJ(record[7])
+
+		if cnpj.IsValid() {
 			cnpjValid = true
 		} else {
 			cnpjValid = false
