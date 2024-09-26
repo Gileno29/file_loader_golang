@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"regexp"
 	"strconv"
@@ -14,6 +15,8 @@ import (
 
 	"github.com/klassmann/cpfcnpj"
 	_ "github.com/lib/pq"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Venda struct {
@@ -38,6 +41,8 @@ type Table struct {
 	Name    string
 	Columns []Column
 }
+
+var conection *sql.DB
 
 func processFile(fileName string) (io.Reader, error) {
 	file, err := os.Open(fileName)
@@ -192,12 +197,49 @@ func createTable(table Table, c *sql.DB) error {
 
 }
 
+//GIN FUNCTIONS
+
+func defaultRouter(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, "{message: rota default}")
+}
+
+func uploadFile(c *gin.Context) {
+
+	file, err := c.FormFile("arquivo")
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error ao recuperar arquivo": err.Error()})
+		return
+
+	}
+
+	dst, err := os.OpenFile("./uploads/"+file.Filename, os.O_WRONLY|os.O_CREATE, 0777)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error ao criar arquivo": err.Error()})
+		return
+	}
+	defer dst.Close()
+
+	openFile, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	if _, err := io.Copy(dst, openFile); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Arquivo salvo com sucesso"})
+
+	insertIntoDB(dst.Name(), conection)
+
+}
 func main() {
 
 	//insertIntoDB("Base.txt")
 
 	//TESTE CONEXAO
-	c := conectar("uservendas", "vendas", "dbvendas")
+	conection = conectar("uservendas", "vendas", "dbvendas")
 	var colunms []Column
 
 	c1 := Column{"cpf", "varchar"}
@@ -213,12 +255,17 @@ func main() {
 	colunms = append(colunms, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10)
 	tb := Table{"venda", colunms}
 
-	err := createTable(tb, c)
+	err := createTable(tb, conection)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	insertIntoDB("Base.txt", c)
+	router := gin.Default()
+
+	router.GET("/", defaultRouter)
+	router.POST("/upload", uploadFile)
+
+	router.Run("0.0.0.0:8080")
 
 }
