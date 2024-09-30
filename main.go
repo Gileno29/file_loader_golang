@@ -178,6 +178,16 @@ func inserirRegistros(v Venda, c *sql.DB) {
 
 }
 
+func listarRegistros() *sql.Row {
+	c := conectar()
+
+	result := c.QueryRow("SELECT * FROM venda")
+
+	fmt.Println(result.Scan())
+
+	return result
+}
+
 func createTable(table Table, c *sql.DB) error {
 	var columns []string
 	for _, column := range table.Columns {
@@ -240,6 +250,12 @@ func uploadFile(c *gin.Context) {
 	insertIntoDB(dst.Name(), conection)
 
 }
+
+func getVendas(c *gin.Context) {
+	r := listarRegistros()
+
+	c.IndentedJSON(http.StatusOK, r)
+}
 func main() {
 
 	//insertIntoDB("Base.txt")
@@ -272,6 +288,7 @@ func main() {
 
 	router.GET("/", defaultRouter)
 	router.POST("/upload", uploadFile)
+	router.GET("/vendas", getVendas)
 
 	router.Run("0.0.0.0:8080")
 

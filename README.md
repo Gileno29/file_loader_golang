@@ -68,19 +68,22 @@ Seguindo a ordem corretamente o sistema deve iniciar e está acessivel no endere
 ## Utilizaçao
 O sistema consiste em uma API para inserção de uma base em .txt, conforme disponibilizada para análise, em um banco de dados relacional PostgreSQL. Essa API posssui um endpoint chamado "upload" que deve receber o arquivo de texto, com cabeçalho, esse arquivo vai ser processado e seus registros atribuidos ao database.
 
+para enviar o arquivo utiliza o utilitario curl:
+```sh
+    curl -X POST -H "Content-Type: multipart/form-data" -F "arquivo=@Base.txt"   http://0.0.0.0:8080/upload
+```
 
 *OBS:* O arquivo não deve ser alterado ou ter seu cabeçalho removido o script considera a primeira linha como sendo o cabecalho
 
 *OBS:* O arquivo está no projeto com o nome Base.txt
 
-### interface sistema
+### End Points:
 
-<img src="https://github.com/Gileno29/file_loader/blob/main/doc/img/interface_sistema.png"/>
 
-- Opção de reset:
-   Foi adicionado uma funcionalidade para o reset do database, caso seja nesssário, essa opção vai dropar o database e recriar  a tabela.
+- /upload:
+   Recebe um arquivo para carregar no banco de dados
 
-- Opção de  listar registros: 
+- /vendas: 
    Essa opção vai listar os registros inseridos no banco de dados em formato json, caso não haja registros vai retornar um json com not found.
 
 - Opção de Upload: vai encaminhar o arquivo carregado para o backend realizar o processamento.
