@@ -157,11 +157,11 @@ func conectar() (error *sql.DB) {
 	//defer db.Close()
 
 	// Testar a conexão
-	/*	err = db.Ping()
-		if err != nil {
-			log.Fatal("Erro ao conectar ao banco de dados:", err)
-		}
-	*/
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Erro ao conectar ao banco de dados:", err)
+	}
+
 	fmt.Println("Conectado ao banco de dados com sucesso!")
 
 	return db
@@ -246,6 +246,7 @@ func main() {
 
 	//TESTE CONEXAO
 	conection = conectar()
+	gin.SetMode(gin.ReleaseMode)
 	var colunms []Column
 
 	c1 := Column{"cpf", "varchar"}
