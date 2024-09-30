@@ -17,6 +17,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 type Venda struct {
@@ -141,9 +142,14 @@ func insertIntoDB(fileName string, db *sql.DB) {
 
 }
 
-func conectar(user string, pass string, database string) (error *sql.DB) {
+func conectar() (error *sql.DB) {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+	}
 
-	connStr := "user=" + user + " dbname=" + database + " password=" + pass + " host=localhost sslmode=disable"
+	connStr := "user=" + os.Getenv("POSTGRES_USER") + " dbname=" + os.Getenv("POSTGRES_DB") + " password=" + os.Getenv("POSTGRES_PASSWORD") + " host=" + os.Getenv("DATABASE_HOST") + " sslmode=disable"
+	fmt.Println("String de conexao: ", connStr)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal("Erro ao abrir a conexão:", err)
@@ -239,7 +245,7 @@ func main() {
 	//insertIntoDB("Base.txt")
 
 	//TESTE CONEXAO
-	conection = conectar("uservendas", "vendas", "dbvendas")
+	conection = conectar()
 	var colunms []Column
 
 	c1 := Column{"cpf", "varchar"}
