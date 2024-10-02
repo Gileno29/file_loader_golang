@@ -21,16 +21,16 @@ import (
 )
 
 type Venda struct {
-	cpf                string
-	private            int32
-	incompleto         int32
-	ultimaCompra       string
-	ticketMedio        string
-	ticketUltimaCompra string
-	lojaMaisFrequente  string
-	lojaUltimaCompra   string
-	cpfValid           bool
-	cnpjValid          bool
+	Cpf                string `json:"cpf"`
+	Private            int32  `json:"private"`
+	Incompleto         int32  `json:"imcompleto"`
+	UltimaCompra       string `json:"ultimacompra"`
+	TicketMedio        string `json:"ticketmedio"`
+	TicketUltimaCompra string `json:"ticketultimacompra"`
+	LojaMaisFrequente  string `json:"lojamaisfrequente"`
+	LojaUltimaCompra   string `json:"lojaultimacompra"`
+	CpfValid           bool   `json:"cpfvalid"`
+	CnpjValid          bool   `json:"cnpjvalid"`
 }
 
 type Column struct {
@@ -170,7 +170,7 @@ func conectar() (error *sql.DB) {
 
 func inserirRegistros(v Venda, c *sql.DB) {
 
-	_, err := c.Exec("INSERT INTO venda VALUES ($1, $2, $3,$4,$5, $6, $7, $8, $9, $10)", v.cpf, v.private, v.incompleto, v.ultimaCompra, v.ticketMedio, v.ticketUltimaCompra, v.lojaMaisFrequente, v.lojaUltimaCompra, v.cpfValid, v.cnpjValid)
+	_, err := c.Exec("INSERT INTO venda VALUES ($1, $2, $3,$4,$5, $6, $7, $8, $9, $10)", v.Cpf, v.Private, v.Incompleto, v.UltimaCompra, v.TicketMedio, v.TicketUltimaCompra, v.LojaMaisFrequente, v.LojaUltimaCompra, v.CpfValid, v.CnpjValid)
 	if err != nil {
 		log.Fatal("Erro ao executar o INSERT:", err)
 	}
@@ -178,14 +178,36 @@ func inserirRegistros(v Venda, c *sql.DB) {
 
 }
 
-func listarRegistros() *sql.Row {
+func listarRegistros() []Venda {
+	var vendas []Venda
 	c := conectar()
 
-	result := c.QueryRow("SELECT * FROM venda")
+	rows, err := c.Query("SELECT * FROM venda")
+	if err != nil {
+		panic(err)
+	}
 
-	fmt.Println(result.Scan())
+	defer rows.Close()
+	for rows.Next() {
+		//fmt.Println(rows)
+		var cpf string
+		var private int32
+		var incompleto int32
+		var ultimaCompra string
+		var ticketMedio string
+		var ticketUltimaCompra string
+		var lojaMaisFrequente string
+		var lojaUltimaCompra string
+		var cpfValid bool
+		var cnpjValid bool
+		err := rows.Scan(&cpf, &private, &incompleto, &ultimaCompra, &ticketMedio, &ticketUltimaCompra, &lojaMaisFrequente, &lojaUltimaCompra, &cpfValid, &cnpjValid)
+		if err != nil {
+			panic(err)
+		}
+		vendas = append(vendas, Venda{cpf, private, incompleto, ultimaCompra, ticketMedio, ticketUltimaCompra, lojaMaisFrequente, lojaUltimaCompra, cpfValid, cnpjValid})
+	}
 
-	return result
+	return vendas
 }
 
 func createTable(table Table, c *sql.DB) error {
@@ -253,8 +275,16 @@ func uploadFile(c *gin.Context) {
 
 func getVendas(c *gin.Context) {
 	r := listarRegistros()
+	//fmt.Println(r)
 
-	c.IndentedJSON(http.StatusOK, r)
+	//rBytes, err := json.MarshalIndent(r, "", " ")
+	/*if err != nil {
+		fmt.Println("Erro ao marshalar para JSON:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao processar a requisição"})
+		return
+	}*/
+
+	c.JSON(http.StatusOK, r)
 }
 func main() {
 
