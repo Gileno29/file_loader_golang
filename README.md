@@ -86,11 +86,6 @@ para enviar o arquivo utiliza o utilitario curl:
 - /vendas: 
    Essa opção vai listar os registros inseridos no banco de dados em formato json, caso não haja registros vai retornar um json com not found.
 
-- Opção de Upload: vai encaminhar o arquivo carregado para o backend realizar o processamento.
-
-o sistema incialmente começa sem a tabela destinada para os dados, quando enviado o arquivo para carregamento essa tabela vai ser criada e carregada com os dados, o sistema vai redirecionar para uma tela de loading, é necessário aguardar finalizar.
-
-O tempo de carregamento para os dados da base de exemplo completa está por volta dos 3.40 segundos.
 
 Dados tecnicos da máquina onde o teste foi executado:
 ```
@@ -102,8 +97,6 @@ Dados tecnicos da máquina onde o teste foi executado:
 
 ```
 
-
-Após isso é possivel visualizar os dados em formato json, através do botão de listar registros.
 
 Busca dos registros:
 
